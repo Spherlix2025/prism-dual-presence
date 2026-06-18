@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM · Dual Presence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.48/build/spline-viewer.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#0b110d;color:#efe7d6;font-family:'Inter',sans-serif;}
+  @keyframes px-float{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+  @keyframes px-spin{to{transform:rotate(360deg)}}
+  @keyframes px-spin-r{to{transform:rotate(-360deg)}}
+  @keyframes px-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+  @keyframes laser{0%{transform:translateY(-15%);opacity:0}12%{opacity:.75}88%{opacity:.75}100%{transform:translateY(118%);opacity:0}}
+  @keyframes px-floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes px-sweep{0%{background-position:220% 0}100%{background-position:-120% 0}}
+  @keyframes px-xfadeA{0%,40%{opacity:1}50%,90%{opacity:0}100%{opacity:1}}
+  @keyframes px-xfadeB{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+  @keyframes px-kb{0%{transform:scale(1)}100%{transform:scale(1.14)}}
+  @keyframes px-kbpan{0%{transform:scale(1.06) translate(0,0)}50%{transform:scale(1.24) translate(-4%,-3%)}100%{transform:scale(1.06) translate(0,0)}}
+  @keyframes wc{0%{opacity:0;filter:blur(8px);transform:translateY(-12px)}4%{opacity:1;filter:blur(0);transform:none}21%{opacity:1;filter:blur(0);transform:none}25%,100%{opacity:0;filter:blur(8px);transform:translateY(12px)}}
+  @keyframes ringpan{0%{object-position:50% 38%}100%{object-position:50% 64%}}
+  @keyframes imgAlt{0%{opacity:1}26%{opacity:1}32%{opacity:0}94%{opacity:0}100%{opacity:1}}
+  @keyframes fppulse{0%,100%{opacity:.38}50%{opacity:.82}}
+  @keyframes ripple{0%{transform:scale(.28);opacity:.7}100%{transform:scale(3.6);opacity:0}}
+  @keyframes scratchpulse{0%,100%{opacity:.45}50%{opacity:1}}
+  @keyframes fall{from{background-position:0px 220px,3px 220px,151.5px 337.5px,25px 24px,28px 24px,176.5px 150px,50px 16px,53px 16px,201.5px 91px,75px 224px,78px 224px,226.5px 230.5px,100px 19px,103px 19px,251.5px 121px,125px 120px,128px 120px,276.5px 187px,150px 31px,153px 31px,301.5px 120.5px,175px 235px,178px 235px,326.5px 384.5px,200px 121px,203px 121px,351.5px 228.5px,225px 224px,228px 224px,376.5px 364.5px,250px 26px,253px 26px,401.5px 105px,275px 75px,278px 75px,426.5px 180px}to{background-position:0px 6800px,3px 6800px,151.5px 6917.5px,25px 13632px,28px 13632px,176.5px 13758px,50px 5416px,53px 5416px,201.5px 5491px,75px 17175px,78px 17175px,226.5px 17301.5px,100px 5119px,103px 5119px,251.5px 5221px,125px 8428px,128px 8428px,276.5px 8495px,150px 9876px,153px 9876px,301.5px 9965.5px,175px 13391px,178px 13391px,326.5px 13540.5px,200px 14741px,203px 14741px,351.5px 14848.5px,225px 18770px,228px 18770px,376.5px 18910.5px,250px 5082px,253px 5082px,401.5px 5161px,275px 6375px,278px 6375px,426.5px 6480px}}
+  .fall-bg{position:absolute;inset:0;z-index:0;background-color:#000;background-image:radial-gradient(4px 100px at 0px 235px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 235px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 117.5px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 252px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 252px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 126px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 150px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 150px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 75px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 253px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 253px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 126.5px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 204px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 204px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 102px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 134px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 134px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 67px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 179px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 179px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 89.5px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 299px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 299px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 149.5px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 215px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 215px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 107.5px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 281px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 281px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 140.5px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 158px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 158px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 79px,rgba(255,255,255,.95) 100%,transparent 150%),radial-gradient(4px 100px at 0px 210px,rgba(255,255,255,.95),transparent),radial-gradient(4px 100px at 300px 210px,rgba(255,255,255,.95),transparent),radial-gradient(1.5px 1.5px at 150px 105px,rgba(255,255,255,.95) 100%,transparent 150%);background-size:300px 235px,300px 235px,300px 235px,300px 252px,300px 252px,300px 252px,300px 150px,300px 150px,300px 150px,300px 253px,300px 253px,300px 253px,300px 204px,300px 204px,300px 204px,300px 134px,300px 134px,300px 134px,300px 179px,300px 179px,300px 179px,300px 299px,300px 299px,300px 299px,300px 215px,300px 215px,300px 215px,300px 281px,300px 281px,300px 281px,300px 158px,300px 158px,300px 158px,300px 210px,300px 210px,300px 210px;animation:fall 150s linear infinite;}
+  .fall-dot{position:absolute;inset:0;z-index:1;background-image:radial-gradient(circle at 50% 50%,transparent 0,transparent 2px,#000 2px);background-size:8px 8px;}
+  .mq{overflow:hidden;width:100%;}
+  .mq-track{display:inline-block;white-space:nowrap;font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:84px;line-height:1.12;letter-spacing:.01em;color:#efe7d6;animation:mq-scroll 42s linear infinite;will-change:transform;}
+  .mq-track em{color:#7ce0a8;font-style:normal;}
+  .mq-reflect{transform:scaleY(-1);opacity:.15;-webkit-mask-image:linear-gradient(#000,transparent 72%);mask-image:linear-gradient(#000,transparent 72%);}
+  @keyframes mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes px-xfade3a{0%,26%{opacity:1}34%,92%{opacity:0}100%{opacity:1}}
+  @keyframes px-xfade3b{0%,26%{opacity:0}34%,59%{opacity:1}67%,100%{opacity:0}}
+  @keyframes px-xfade3c{0%,59%{opacity:0}67%,92%{opacity:1}100%{opacity:0}}
+  .aq{position:relative;z-index:3;perspective:1100px;width:min(1180px,94vw);height:56vh;}
+  .aq-box{position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:rotateX(2deg);}
+  .aq-wall{position:absolute;top:0;height:100%;overflow:hidden;display:flex;align-items:center;}
+  .aq-wall.back{left:24%;width:52%;transform:translateZ(-220px);}
+  .aq-wall.left{left:0;width:30%;transform-origin:right center;transform:rotateY(58deg);-webkit-mask-image:linear-gradient(90deg,transparent,#000 75%);mask-image:linear-gradient(90deg,transparent,#000 75%);}
+  .aq-wall.right{right:0;width:30%;transform-origin:left center;transform:rotateY(-58deg);-webkit-mask-image:linear-gradient(90deg,#000 25%,transparent);mask-image:linear-gradient(90deg,#000 25%,transparent);}
+  .aq-track{white-space:nowrap;font-family:'Inter',sans-serif;font-weight:200;font-size:42px;color:#efe7d6;animation:mq-scroll 26s linear infinite;will-change:transform;}
+  .aq-wall.back .aq-track{font-size:58px;animation-duration:30s;}
+  .aq-track em{color:#7ce0a8;font-style:normal;}
+  .ring-scene{position:relative;z-index:3;width:1080px;height:192vh;perspective:1200px;}
+  .ring{position:absolute;inset:0;transform-style:preserve-3d;animation:ring-rot 110s linear infinite;}
+  @keyframes ring-rot{from{transform:rotateX(-5deg) rotateY(0)}to{transform:rotateX(-5deg) rotateY(360deg)}}
+  .ring img{position:absolute;top:0;bottom:0;left:calc(50% - 250px);width:500px;height:192vh;object-fit:cover;border-radius:10px;box-shadow:0 40px 90px -20px #000,0 0 0 1px rgba(124,224,168,0.18);filter:grayscale(.78) contrast(1.12) brightness(.97) sepia(.16) hue-rotate(58deg) saturate(.95);backface-visibility:hidden;object-position:50% 40%;}
+  .ring img:nth-child(1){transform:rotateY(0deg) translateZ(800px) rotateY(180deg)}
+  .ring img:nth-child(2){transform:rotateY(45deg) translateZ(800px) rotateY(180deg)}
+  .ring img:nth-child(3){transform:rotateY(90deg) translateZ(800px) rotateY(180deg)}
+  .ring img:nth-child(4){transform:rotateY(135deg) translateZ(800px) rotateY(180deg)}
+  .ring img:nth-child(5){transform:rotateY(180deg) translateZ(800px) rotateY(180deg)}
+  .ring img:nth-child(6){transform:rotateY(225deg) translateZ(800px) rotateY(180deg)}
+  .ring img:nth-child(7){transform:rotateY(270deg) translateZ(800px) rotateY(180deg)}
+  .ring img:nth-child(8){transform:rotateY(315deg) translateZ(800px) rotateY(180deg)}
+  .qb-scene{perspective:1500px;width:300px;height:300px;}
+  .qb{position:relative;width:300px;height:300px;transform-style:preserve-3d;animation:qb-rot 20s linear infinite;}
+  @keyframes qb-rot{from{transform:rotateX(-14deg) rotateY(0)}to{transform:rotateX(-14deg) rotateY(360deg)}}
+  .qb-face{position:absolute;width:300px;height:300px;display:flex;align-items:center;justify-content:center;padding:32px;font-family:'Inter',sans-serif;font-weight:300;font-size:15px;line-height:1.72;text-align:center;color:#efe7d6;background:transparent;border:1px solid rgba(124,224,168,0.28);backface-visibility:hidden;}
+  .qb-face p{margin:0}
+  .qb-face em{color:#7ce0a8;font-style:normal}
+  .qb-face.f1{transform:rotateY(0deg) translateZ(150px)}
+  .qb-face.f2{transform:rotateY(90deg) translateZ(150px)}
+  .qb-face.f3{transform:rotateY(180deg) translateZ(150px)}
+  .qb-face.f4{transform:rotateY(270deg) translateZ(150px)}
+  .qb-face.top{transform:rotateX(90deg) translateZ(150px)}
+  .qb-face.bot{transform:rotateX(-90deg) translateZ(150px)}
+
+  /* ── Language Switcher ───────────────────────────────────────────────── */
+  #lang-switcher{position:fixed;top:18px;right:18px;z-index:9999;display:flex;gap:6px;padding:6px;background:rgba(8,13,10,0.7);backdrop-filter:blur(12px);border:1px solid rgba(124,224,168,0.25);border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;}
+  .lang-btn{background:transparent;border:none;color:rgba(239,231,214,0.55);padding:6px 12px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:uppercase;transition:all .25s ease;}
+  .lang-btn:hover{color:#efe7d6;}
+  .lang-btn.active{background:rgba(124,224,168,0.18);color:#7ce0a8;box-shadow:0 0 14px rgba(124,224,168,0.25);}
+</style>
+</head>
+<body>
+<main id="deck" style="display:block;background:#0b110d;overflow-x:hidden;">
+
+  <!-- ░░░ COVER ░░░ -->
+  <section data-screen-label="Cover" style="position:relative;height:100vh;overflow:hidden;background:radial-gradient(80% 80% at 50% 42%,#11201a,#0a0f0c 75%);">
+    <div style="position:absolute;inset:0;background:radial-gradient(58% 58% at 50% 56%,rgba(124,224,168,0.14),transparent 60%);"></div>
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(124,224,168,0.04) 0 1px,transparent 1px 110px);"></div>
+    <div style="position:absolute;left:0;right:0;top:17%;transform:translateY(-50%);z-index:1;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;perspective:1300px;opacity:.85;pointer-events:none;animation:px-floaty 7s ease-in-out infinite;">
+      <div style="position:absolute;inset:-3vh -3vw;z-index:3;background:linear-gradient(115deg,transparent 42%,rgba(124,224,168,0.16) 50%,transparent 58%);background-size:250% 100%;animation:px-sweep 6s linear infinite;pointer-events:none;"></div>
+      <div style="position:relative;width:28vw;height:44vh;border-radius:8px;overflow:hidden;transform:rotateY(26deg);box-shadow:0 40px 120px -30px rgba(124,224,168,0.22),inset 0 0 0 2px rgba(124,224,168,0.22);">
+        <img src="assets/gallery/alex_09.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%;filter:brightness(.78) saturate(.45) hue-rotate(-95deg);animation:imgAlt 12.5s 0s infinite;" />
+        <img src="assets/gallery/alex_02.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;filter:brightness(.78) saturate(.45) hue-rotate(-95deg);animation:imgAlt 12.5s -4.18s infinite;" />
+        <img src="assets/gallery/alex_05.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:20% 50%;filter:brightness(.78) saturate(.45) hue-rotate(-95deg);animation:imgAlt 12.5s -8.33s infinite;" />
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.22) 0 2px,transparent 2px 5px);"></div>
+      </div>
+      <div style="position:relative;width:28vw;height:44vh;border-radius:8px;overflow:hidden;transform:rotateY(-26deg);box-shadow:0 40px 120px -30px rgba(124,224,168,0.22),inset 0 0 0 2px rgba(124,224,168,0.22);">
+        <img src="assets/gallery/vdnh_3.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;filter:brightness(.78) saturate(.45) hue-rotate(-95deg);animation:imgAlt 12.5s 0s infinite;" />
+        <img src="assets/gallery/zaradie_10.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.74) saturate(.4) hue-rotate(-95deg);animation:imgAlt 12.5s -6.25s infinite;" />
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.22) 0 2px,transparent 2px 5px);"></div>
+      </div>
+    </div>
+    <spline-viewer url="https://prod.spline.design/PyzDhpQ9E5f1E3MT/scene.splinecode" style="position:absolute;inset:0;width:100%;height:100%;z-index:2;"></spline-viewer>
+
+    <div style="position:absolute;top:44px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:10px;z-index:6;pointer-events:none;">
+      <img src="assets/nuanu_word_white.png" alt="Nuanu" style="height:88px;opacity:.96;filter:drop-shadow(0 6px 24px rgba(0,0,0,.65));" />
+      <div style="width:260px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);"></div>
+      <div data-i18n="cover_omniplax_title" style="font-family:'Inter',sans-serif;font-weight:600;font-size:15px;letter-spacing:.28em;text-transform:uppercase;color:#efe7d6;text-shadow:0 2px 16px rgba(0,0,0,.8);">OMNIPLAX Space Intelligence</div>
+      <div data-i18n="cover_omniplax_sub" style="font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(179,173,156,0.7);">integrated advertising platform for physical spaces</div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:90px;text-align:center;z-index:6;pointer-events:none;padding:0 6vw;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;letter-spacing:.5em;text-transform:uppercase;color:#efe7d6;text-shadow:0 4px 26px rgba(0,0,0,.7);"><span data-i18n="cover_tagline_prefix">When the island begins to</span> <span style="position:relative;display:inline-block;min-width:4.4em;text-align:left;color:#7ce0a8;"><span data-i18n="cover_word_speak" style="position:absolute;left:0;animation:wc 12s 0s infinite;">speak</span><span data-i18n="cover_word_glow" style="position:absolute;left:0;animation:wc 12s -3s infinite;">glow</span><span data-i18n="cover_word_guide" style="position:absolute;left:0;animation:wc 12s -6s infinite;">guide</span><span data-i18n="cover_word_answer" style="position:absolute;left:0;animation:wc 12s -9s infinite;">answer</span></span></div>
+    </div>
+    <div style="position:absolute;right:10px;bottom:10px;width:168px;height:46px;background:#090f0b;border-radius:10px;z-index:7;pointer-events:none;"></div>
+  </section>
+
+  <!-- ░░░ CONCEPT ░░░ -->
+  <section data-screen-label="The Concept" style="position:relative;padding:92px 8vw 140px;background:#0a0f0c;overflow:hidden;">
+    <img src="assets/faces.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.64) saturate(.9) contrast(1.05);opacity:.7;animation:px-kb 28s ease-in-out infinite alternate;" />
+    <div style="position:absolute;inset:0;background:radial-gradient(80% 70% at 50% 38%,rgba(16,26,20,0.35),rgba(8,13,10,0.88) 76%);"></div>
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(124,224,168,0.03) 0 1px,transparent 1px 110px);"></div>
+    <div style="position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;"><div style="position:absolute;left:6%;right:6%;height:2px;background:linear-gradient(90deg,transparent,rgba(124,224,168,0.75),transparent);box-shadow:0 0 20px rgba(124,224,168,0.6);animation:laser 6.5s ease-in-out infinite;"></div><div style="position:absolute;inset:0;background:radial-gradient(18% 32% at 24% 46%,rgba(124,224,168,0.09),transparent 62%),radial-gradient(20% 36% at 76% 46%,rgba(231,207,166,0.13),transparent 62%),radial-gradient(9% 15% at 30% 42%,rgba(64,205,224,0.16),transparent 60%),radial-gradient(7% 12% at 70% 44%,rgba(64,205,224,0.12),transparent 60%);mix-blend-mode:screen;animation:px-pulse 4.5s ease-in-out infinite;"></div></div>
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1),transform 1s cubic-bezier(.16,.84,.34,1);text-align:center;position:relative;z-index:2;">
+      <div data-i18n="concept_eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#b3ad9c;margin-bottom:22px;">The Concept · Tri Hita Karana</div>
+      <h2 style="margin:0;font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:54px;line-height:1.04;color:#efe7d6;"><span data-i18n="concept_heading">Two presences. One contour.</span></h2>
+    </div>
+
+    <p data-reveal data-i18n="concept_body" style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .25s,transform 1s cubic-bezier(.16,.84,.34,1) .25s;position:relative;z-index:2;max-width:780px;margin:288px auto 0;text-align:center;font-weight:300;font-size:21px;line-height:1.6;color:#b3ad9c;">Advertising at Nuanu is not media inventory. It is one living contour — an outer layer that captures desire across Bali, and an inner layer that guides immersion through the creative city — bound by a single intelligence that connects every surface, online and offline, nature and technology.</p>
+  </section>
+
+  <!-- ░░░ EXTERNAL — WARM EARTH ░░░ -->
+  <section data-screen-label="External Presence" style="position:relative;padding:130px 8vw 120px;background:#050b07;overflow:hidden;">
+    <img src="assets/ash.avif" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.38) saturate(1.5) hue-rotate(10deg);opacity:.85;" />
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,7,5,0.82) 0%,rgba(3,7,5,0.6) 45%,rgba(3,7,5,0.85) 100%);"></div>
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1),transform 1s cubic-bezier(.16,.84,.34,1);position:relative;z-index:2;">
+      <div style="display:flex;align-items:center;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,0.75);text-shadow:0 1px 8px rgba(0,0,0,0.9);"><span style="width:9px;height:9px;border-radius:50%;background:#e7cfa6;box-shadow:0 0 14px #e7cfa6;"></span><span data-i18n="ext_eyebrow">Layer 01 · External Presence · Global Omni Digital</span></div>
+      <h2 style="margin:26px 0 0;font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:104px;line-height:.96;color:#fff;text-shadow:0 0 28px rgba(124,224,168,0.6),0 0 64px rgba(168,100,255,0.4),0 2px 14px rgba(0,0,0,0.95);"><span data-i18n="ext_heading">Captures desire.</span></h2>
+      <p data-i18n="ext_body" style="max-width:680px;margin:28px 0 0;font-weight:300;font-size:20px;line-height:1.6;color:rgba(255,255,255,0.8);text-shadow:0 1px 10px rgba(0,0,0,0.85);">A cinematic campaign staged across Bali's most travelled roads — from arrival at Ngurah Rai to the gates of Nuanu, an hour north in Tabanan. Iconic, warm, impossible to ignore.</p>
+      <div style="display:flex;align-items:center;gap:48px;margin-top:40px;padding:24px 32px;border-radius:10px;background:linear-gradient(90deg,rgba(199,154,92,0.14),rgba(199,154,92,0.05));box-shadow:inset 0 0 0 1px rgba(199,154,92,0.22);">
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:70px;line-height:1;color:#ffd97a;letter-spacing:-.03em;text-shadow:0 0 40px rgba(255,210,100,0.5),0 0 16px rgba(255,210,100,0.3);">285K</div><div data-i18n="ext_stat1_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">contacts · day</div></div>
+        <div style="width:1px;height:52px;background:linear-gradient(180deg,transparent,rgba(199,154,92,0.4),transparent);"></div>
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:70px;line-height:1;color:#ffd97a;letter-spacing:-.03em;text-shadow:0 0 40px rgba(255,210,100,0.5),0 0 16px rgba(255,210,100,0.3);">104M</div><div data-i18n="ext_stat2_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">contacts · year</div></div>
+        <div style="width:1px;height:52px;background:linear-gradient(180deg,transparent,rgba(199,154,92,0.4),transparent);"></div>
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:70px;line-height:1;color:#ffd97a;letter-spacing:-.03em;text-shadow:0 0 40px rgba(255,210,100,0.5),0 0 16px rgba(255,210,100,0.3);">32.7K</div><div data-i18n="ext_stat3_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">vehicles · day · Sunset Road</div></div>
+        <div style="width:1px;height:52px;background:linear-gradient(180deg,transparent,rgba(199,154,92,0.4),transparent);"></div>
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:70px;line-height:1;color:#ffd97a;letter-spacing:-.03em;text-shadow:0 0 40px rgba(255,210,100,0.5),0 0 16px rgba(255,210,100,0.3);">16.3M</div><div data-i18n="ext_stat4_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">airport arrivals · yr</div></div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .08s,transform 1s cubic-bezier(.16,.84,.34,1) .08s;margin-top:52px;position:relative;z-index:2;border-radius:10px;border-left:3px solid #e03232;background:linear-gradient(105deg,rgba(224,50,50,0.1) 0%,rgba(224,50,50,0.03) 60%,transparent 100%);box-shadow:inset 0 0 0 1px rgba(224,50,50,0.22),0 8px 48px -16px rgba(224,50,50,0.18);padding:38px 46px;">
+      <div data-i18n="ext_exclusive_label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.34em;color:#e03232;text-transform:uppercase;margin-bottom:18px;">EXCLUSIVE PARTNER CONDITIONS · NOT ON OPEN MARKET</div>
+      <div data-i18n="ext_exclusive_heading" style="font-family:'Cormorant Garamond',sans-serif;font-weight:600;font-size:42px;line-height:1.15;color:#fff;margin-bottom:22px;">Terms you won't find anywhere else.<br>The discounts will pleasantly surprise you.</div>
+      <div data-i18n="ext_exclusive_body" style="font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;color:rgba(231,207,166,0.8);">Corridor: Airport → Sunset Road → Nuanu Gateway — including the new 100 m² entry screen. Conditions agreed directly, without intermediaries or open auctions. Placement investment returns through tenant and partner media slot sales — a revenue channel, not an expense.</div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .1s,transform 1s cubic-bezier(.16,.84,.34,1) .1s;margin-top:70px;display:grid;grid-template-columns:1.15fr 1fr;gap:46px;align-items:stretch;position:relative;z-index:2;">
+      <div style="position:relative;border-radius:8px;padding:42px;background:linear-gradient(180deg,rgba(199,154,92,0.08),rgba(0,0,0,0.2));box-shadow:inset 0 0 0 1px rgba(199,154,92,0.2);">
+        <div data-i18n="coverage_eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.26em;color:#b3ad9c;margin-bottom:42px;">COVERAGE · AIRPORT → NUANU</div>
+        <div style="position:relative;display:flex;flex-direction:column;gap:0;">
+          <div style="position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,#e7cfa6,#b06a43);"></div>
+          <div style="display:flex;align-items:flex-start;gap:22px;padding:0 0 26px;"><span style="position:relative;z-index:2;width:16px;height:16px;border-radius:50%;background:#e7cfa6;box-shadow:0 0 14px #e7cfa6;flex:0 0 auto;margin-top:2px;"></span><div><div data-i18n="loc1_name" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Ngurah Rai Airport · Exit Gate</div><div data-i18n="loc1_sub" style="font-size:15px;color:#b3ad9c;margin-top:3px;">20 totems (12 LED · 8 static) · P8 · ~16.3M arrivals / yr</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:22px;padding:0 0 26px;"><span style="position:relative;z-index:2;width:16px;height:16px;border-radius:50%;background:#d3a85f;flex:0 0 auto;margin-top:2px;"></span><div><div data-i18n="loc2_name" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Sunset Road 99s</div><div data-i18n="loc2_sub" style="font-size:15px;color:#b3ad9c;margin-top:3px;">15 × 5 m LED · P8 · 32.7k vehicles / day</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:22px;padding:0 0 26px;"><span style="position:relative;z-index:2;width:16px;height:16px;border-radius:50%;background:#c2924c;flex:0 0 auto;margin-top:2px;"></span><div><div data-i18n="loc3_name" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Mal Bali Galeria</div><div data-i18n="loc3_sub" style="font-size:15px;color:#b3ad9c;margin-top:3px;">17 × 10 m videotron · P8 · 210k / day</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:22px;padding:0 0 26px;"><span style="position:relative;z-index:2;width:16px;height:16px;border-radius:50%;background:#b8853f;flex:0 0 auto;margin-top:2px;"></span><div><div data-i18n="loc4_name" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Seminyak Square</div><div data-i18n="loc4_sub" style="font-size:15px;color:#b3ad9c;margin-top:3px;">4 × 10 m · P5 · Kayu Aya lifestyle district</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:22px;"><span style="position:relative;z-index:2;width:16px;height:16px;border-radius:50%;background:#7ce0a8;box-shadow:0 0 18px #7ce0a8;flex:0 0 auto;margin-top:2px;"></span><div><div data-i18n="loc5_name" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#fff;">Munggu — Gateway to Nuanu</div><div data-i18n="loc5_sub" style="font-size:15px;color:#b3ad9c;margin-top:3px;">5 × 10 m · P5 · POI: Nuanu, Ulaman, Seseh Beach</div></div></div>
+        </div>
+      </div>
+      <div style="position:relative;width:100%;min-height:440px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px rgba(199,154,92,0.25);">
+        <div id="coverage-map" style="width:100%;height:440px;border-radius:8px;"></div>
+        <div data-i18n="map_caption" style="position:absolute;left:16px;top:14px;z-index:1000;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.26em;color:#e7cfa6;text-shadow:0 2px 10px #000;pointer-events:none;">GLOBAL OMNI DIGITAL · BALI COVERAGE</div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .2s,transform 1s cubic-bezier(.16,.84,.34,1) .2s;margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);gap:30px;border-top:1px solid rgba(199,154,92,0.24);padding-top:38px;position:relative;z-index:2;">
+      <div><div style="font-family:'Cormorant Garamond',sans-serif;font-weight:300;font-size:64px;color:#e7cfa6;text-shadow:0 0 28px rgba(231,207,166,0.3);">16.3M</div><div data-i18n="ext_sec_stat1_label" style="font-size:14px;color:#b3ad9c;letter-spacing:.02em;">arrivals at Ngurah Rai / yr</div></div>
+      <div><div style="font-family:'Cormorant Garamond',sans-serif;font-weight:300;font-size:64px;color:#e7cfa6;text-shadow:0 0 28px rgba(231,207,166,0.3);">143k</div><div data-i18n="ext_sec_stat2_label" style="font-size:14px;color:#b3ad9c;letter-spacing:.02em;">aircraft movements (2025)</div></div>
+      <div><div style="font-family:'Cormorant Garamond',sans-serif;font-weight:300;font-size:64px;color:#e7cfa6;text-shadow:0 0 28px rgba(231,207,166,0.3);">443</div><div data-i18n="ext_sec_stat3_label" style="font-size:14px;color:#b3ad9c;letter-spacing:.02em;">prime-time spots / day</div></div>
+      <div><div style="font-family:'Cormorant Garamond',sans-serif;font-weight:300;font-size:64px;color:#e7cfa6;text-shadow:0 0 28px rgba(231,207,166,0.3);">17h</div><div data-i18n="ext_sec_stat4_label" style="font-size:14px;color:#b3ad9c;letter-spacing:.02em;">daily airtime · P5–P8</div></div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .3s,transform 1s cubic-bezier(.16,.84,.34,1) .3s;margin-top:56px;position:relative;z-index:2;">
+      <div data-i18n="live_screens_eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#b3ad9c;margin-bottom:22px;">Live screens · Bali road network</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+        <div style="position:relative;border-radius:8px;overflow:hidden;height:320px;box-shadow:inset 0 0 0 1px rgba(64,120,200,0.25);">
+          <img src="assets/gallery/alex_09.jpg" alt="Sunset Road billboard" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%;filter:brightness(.86) saturate(.5) hue-rotate(175deg) contrast(1.08);" />
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(4,10,20,0.78) 100%);"></div>
+          <div data-i18n="photo_caption_1" style="position:absolute;bottom:14px;left:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;color:rgba(180,210,255,0.88);">SUNSET ROAD · P8 · 15×5m</div>
+        </div>
+        <div style="position:relative;border-radius:8px;overflow:hidden;height:320px;box-shadow:inset 0 0 0 1px rgba(64,120,200,0.25);">
+          <img src="assets/gallery/alex_05.jpg" alt="Sunset Road totem row" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:18% 50%;filter:brightness(.83) saturate(.5) hue-rotate(178deg) contrast(1.1);" />
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(4,10,20,0.75) 100%);"></div>
+          <div data-i18n="photo_caption_2" style="position:absolute;bottom:14px;left:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;color:rgba(180,210,255,0.88);">SUNSET ROAD · TOTEM · P8</div>
+        </div>
+        <div style="position:relative;border-radius:8px;overflow:hidden;height:320px;box-shadow:inset 0 0 0 1px rgba(64,120,200,0.25);">
+          <img src="assets/gallery/alex_02.jpg" alt="Global Omni Digital screen" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;filter:brightness(.83) saturate(.5) hue-rotate(178deg) contrast(1.1);" />
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(4,10,20,0.75) 100%);"></div>
+          <div data-i18n="photo_caption_3" style="position:absolute;bottom:14px;left:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;color:rgba(180,210,255,0.88);">NGURAH RAI CORRIDOR · P8</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░░ ANALYTICS — EXTERNAL SCREENS ░░░ -->
+  <section data-screen-label="Analytics — External" style="position:relative;padding:120px 8vw 100px;background:#050b07;overflow:hidden;">
+    <img src="assets/photos/ad1.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.26) saturate(.5) hue-rotate(-8deg);opacity:.75;" />
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,7,5,0.9) 0%,rgba(3,7,5,0.6) 50%,rgba(3,7,5,0.92) 100%);"></div>
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1),transform 1s cubic-bezier(.16,.84,.34,1);position:relative;z-index:2;">
+      <div style="display:flex;align-items:center;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#b3ad9c;"><span style="width:9px;height:9px;border-radius:50%;background:#e7cfa6;box-shadow:0 0 14px #e7cfa6;"></span><span data-i18n="analytics_eyebrow">Layer 01 · External Screens · Global Omni Digital</span></div>
+      <h2 style="margin:26px 0 0;font-family:'Inter',sans-serif;font-weight:200;font-size:60px;line-height:.96;color:#efe7d6;"><span data-i18n="analytics_heading_1">Road presence.</span><br><span data-i18n="analytics_heading_2" style="font-weight:300;color:#b3ad9c;font-size:52px;">By the numbers.</span></h2>
+    </div>
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .1s,transform 1s cubic-bezier(.16,.84,.34,1) .1s;margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative;z-index:2;">
+      <div style="padding:32px 28px;border-radius:10px;background:linear-gradient(135deg,rgba(199,154,92,0.18) 0%,rgba(199,154,92,0.06) 100%);box-shadow:inset 0 0 0 1px rgba(199,154,92,0.28),0 8px 40px -12px rgba(199,154,92,0.25);">
+        <div data-i18n="analytics_card1_label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.28em;color:rgba(231,207,166,0.6);text-transform:uppercase;margin-bottom:16px;">Daily reach</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:300;font-size:72px;line-height:1;color:#e7cfa6;letter-spacing:-.02em;text-shadow:0 0 40px rgba(231,207,166,0.35);">285K</div>
+        <div data-i18n="analytics_card1_sub" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;color:#b3ad9c;margin-top:14px;text-transform:uppercase;">contacts · day</div>
+      </div>
+      <div style="padding:32px 28px;border-radius:10px;background:linear-gradient(135deg,rgba(199,154,92,0.22) 0%,rgba(199,154,92,0.08) 100%);box-shadow:inset 0 0 0 1px rgba(199,154,92,0.32),0 8px 40px -12px rgba(199,154,92,0.3);">
+        <div data-i18n="analytics_card2_label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.28em;color:rgba(231,207,166,0.6);text-transform:uppercase;margin-bottom:16px;">Annual reach</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:300;font-size:72px;line-height:1;color:#e7cfa6;letter-spacing:-.02em;text-shadow:0 0 40px rgba(231,207,166,0.4);">104M</div>
+        <div data-i18n="analytics_card2_sub" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;color:#b3ad9c;margin-top:14px;text-transform:uppercase;">contacts · year</div>
+      </div>
+      <div style="padding:32px 28px;border-radius:10px;background:linear-gradient(135deg,rgba(199,154,92,0.1) 0%,rgba(199,154,92,0.04) 100%);box-shadow:inset 0 0 0 1px rgba(199,154,92,0.2);">
+        <div data-i18n="analytics_card3_label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.28em;color:rgba(231,207,166,0.6);text-transform:uppercase;margin-bottom:16px;">Coverage corridor</div>
+        <div data-i18n="analytics_card3_text" style="font-family:'Inter',sans-serif;font-weight:300;font-size:22px;line-height:1.35;color:#efe7d6;">Airport → Sunset Rd → Nuanu Gateway</div>
+        <div data-i18n="analytics_card3_sub" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;color:#b3ad9c;margin-top:14px;text-transform:uppercase;">incl. 100 m² entry screen</div>
+      </div>
+    </div>
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .2s,transform 1s cubic-bezier(.16,.84,.34,1) .2s;margin-top:40px;padding:26px 34px;border-radius:8px;background:linear-gradient(90deg,rgba(199,154,92,0.08),rgba(199,154,92,0.03));box-shadow:inset 0 0 0 1px rgba(199,154,92,0.18);position:relative;z-index:2;display:flex;align-items:flex-start;gap:20px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#e7cfa6;flex:0 0 auto;box-shadow:0 0 12px #e7cfa6;margin-top:7px;"></span>
+      <div>
+        <div data-i18n="analytics_roi_label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.28em;color:#b3ad9c;margin-bottom:8px;text-transform:uppercase;">Monetisation · Return on investment</div>
+        <div data-i18n="analytics_roi_body" style="font-family:'Cormorant Garamond',sans-serif;font-size:21px;font-weight:300;color:#efe7d6;line-height:1.55;">On Nuanu's guaranteed broadcast slot, the island runs campaigns for its own tenants and partners — or co-branded activations with Bali's largest outdoor network. Placement pays for itself through media sales. A return channel, not an expense.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░░ THE INTELLIGENCE — JUNGLE × HIGH-TECH ░░░ -->
+  <section data-screen-label="The Intelligence" style="position:relative;padding:130px 8vw;background:#0a0f0c;overflow:hidden;">
+    <img src="assets/photos/nat3.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;filter:grayscale(.55) brightness(.38) contrast(1.08);opacity:.5;" />
+    <div style="position:absolute;inset:0;background:radial-gradient(90% 80% at 50% 50%,rgba(16,26,20,0.3),rgba(8,13,10,0.9) 76%);"></div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1),transform 1s cubic-bezier(.16,.84,.34,1);position:relative;z-index:2;text-align:center;">
+      <div data-i18n="intel_eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#b3ad9c;margin-bottom:22px;">The Intelligence · Yantra Amore</div>
+      <h2 style="margin:0;font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:84px;line-height:1;color:#efe7d6;"><span data-i18n="intel_heading">Where nature meets the future.</span></h2>
+      <p data-i18n="intel_body" style="max-width:800px;margin:28px auto 0;font-weight:300;font-size:20px;line-height:1.6;color:#b3ad9c;">One audience, followed along its entire movement. The visitor drawn by a billboard at the airport is recognised inside Nuanu, continues on their phone, and joins the community — one marketing contour binding online and offline, jungle and high-tech.</p>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .12s,transform 1s cubic-bezier(.16,.84,.34,1) .12s;position:relative;z-index:2;margin:74px auto 0;max-width:1080px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+      <div style="text-align:center;padding:30px 18px;border-radius:8px;background:rgba(199,154,92,0.07);box-shadow:inset 0 0 0 1px rgba(199,154,92,0.2);"><div data-i18n="funnel_offline_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;">OFFLINE</div><div data-i18n="funnel_offline_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#efe7d6;margin-top:12px;">Billboard</div><div data-i18n="funnel_offline_sub" style="font-size:14px;color:#b3ad9c;margin-top:6px;line-height:1.45;">Desire sparked on the road</div></div>
+      <div style="text-align:center;padding:30px 18px;border-radius:8px;background:rgba(124,224,168,0.08);box-shadow:inset 0 0 0 1px rgba(124,224,168,0.24);"><div data-i18n="funnel_bridge_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;">BRIDGE</div><div data-i18n="funnel_bridge_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#efe7d6;margin-top:12px;">Phone · QR</div><div data-i18n="funnel_bridge_sub" style="font-size:14px;color:#b3ad9c;margin-top:6px;line-height:1.45;">Route continues, no app</div></div>
+      <div style="text-align:center;padding:30px 18px;border-radius:8px;background:rgba(79,138,94,0.1);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.26);"><div data-i18n="funnel_onsite_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;">ONSITE</div><div data-i18n="funnel_onsite_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#efe7d6;margin-top:12px;">Panel</div><div data-i18n="funnel_onsite_sub" style="font-size:14px;color:#b3ad9c;margin-top:6px;line-height:1.45;">Recognised, guided inside</div></div>
+      <div style="text-align:center;padding:30px 18px;border-radius:8px;background:rgba(79,138,94,0.07);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.18);"><div data-i18n="funnel_online_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;">ONLINE</div><div data-i18n="funnel_online_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#efe7d6;margin-top:12px;">Loyalty</div><div data-i18n="funnel_online_sub" style="font-size:14px;color:#b3ad9c;margin-top:6px;line-height:1.45;">Community &amp; rewards</div></div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .2s,transform 1s cubic-bezier(.16,.84,.34,1) .2s;position:relative;z-index:2;margin:64px auto 0;max-width:880px;text-align:center;padding:46px;border-radius:10px;background:linear-gradient(120deg,rgba(199,154,92,0.06),rgba(79,138,94,0.08));box-shadow:inset 0 0 0 1px rgba(124,224,168,0.14);">
+      <p data-i18n="intel_quote" style="margin:0;font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:27px;line-height:1.4;color:#efe7d6;">A dedicated media department — designed and led by Yantra Amore, in joint venture with Alex — running external and internal advertising as one synergetic system inside Nuanu's marketing contour.</p>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;z-index:10;height:110px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;">
+      <div style="font-family:'Inter',sans-serif;font-weight:300;font-size:13px;letter-spacing:.48em;text-transform:uppercase;color:rgba(239,231,214,0.55);text-align:center;animation:fppulse 5s ease-in-out infinite;">A Gallery That Surrounds You</div>
+    </div>
+  </section>
+
+  <!-- ░░░ GALLERY — EVERY SURFACE ░░░ -->
+  <section data-screen-label="In Frame" style="position:relative;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#000;">
+    <div class="fall-bg"></div>
+    <div class="fall-dot"></div>
+    <div style="position:absolute;inset:0;z-index:2;background:radial-gradient(60% 60% at 50% 55%,rgba(0,0,0,0.0),rgba(0,0,0,0.55) 100%);"></div>
+    <div class="ring-scene" style="position:relative;z-index:4;">
+      <div class="ring">
+        <img src="assets/gallery/alex_02.jpg" alt="" style="object-position:50% 35%;filter:grayscale(.75) contrast(1.12) brightness(.96) sepia(.18) hue-rotate(58deg) saturate(.98);" />
+        <img src="assets/gallery/vdnh_5.jpg" alt="" style="object-position:50% 40%;filter:grayscale(.75) contrast(1.12) brightness(.94) sepia(.42) hue-rotate(-18deg) saturate(1.05);" />
+        <img src="assets/gallery/alex_05.jpg" alt="" style="object-position:20% 45%;filter:grayscale(.75) contrast(1.12) brightness(.96) sepia(.18) hue-rotate(58deg) saturate(.98);" />
+        <img src="assets/gallery/vdnh_4.jpg" alt="" style="object-position:58% 45%;filter:grayscale(.75) contrast(1.12) brightness(.94) sepia(.42) hue-rotate(-18deg) saturate(1.05);" />
+        <img src="assets/gallery/alex_08.jpg" alt="" style="object-position:42% 28%;filter:grayscale(.75) contrast(1.12) brightness(.96) sepia(.18) hue-rotate(58deg) saturate(.98);" />
+        <img src="assets/gallery/vdnh_3.jpg" alt="" style="object-position:58% 42%;filter:grayscale(.75) contrast(1.12) brightness(.94) sepia(.42) hue-rotate(-18deg) saturate(1.05);" />
+        <img src="assets/gallery/alex_03.jpg" alt="" style="object-position:45% 28%;filter:grayscale(.75) contrast(1.12) brightness(.96) sepia(.18) hue-rotate(58deg) saturate(.98);" />
+        <img src="assets/gallery/vdnh_1.jpg" alt="" style="object-position:40% 45%;filter:grayscale(.75) contrast(1.12) brightness(.94) sepia(.42) hue-rotate(-18deg) saturate(1.05);" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░░ INTERNAL — JUNGLE GREEN ░░░ -->
+  <section data-screen-label="Internal Presence" style="position:relative;padding:130px 8vw 120px;background:radial-gradient(120% 80% at 18% 0%,#141414,#0d0d0d 52%,#080808 100%);overflow:hidden;">
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,0.018) 0 1px,transparent 1px 132px),repeating-linear-gradient(0deg,rgba(255,255,255,0.018) 0 1px,transparent 1px 132px);"></div>
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1),transform 1s cubic-bezier(.16,.84,.34,1);position:relative;z-index:2;">
+      <div style="display:flex;align-items:center;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#b3ad9c;"><span style="width:9px;height:9px;border:1px solid #7ce0a8;border-radius:50%;"></span><span data-i18n="int_eyebrow">Layer 02 · Internal Presence · Initium · Directorix®</span></div>
+      <h2 style="margin:26px 0 0;font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:104px;line-height:.96;color:#efe7d6;"><span data-i18n="int_heading">Guides immersion.</span></h2>
+      <p data-i18n="int_body" style="max-width:720px;margin:28px 0 0;font-weight:300;font-size:20px;line-height:1.6;color:#b3ad9c;">Inside the 44-hectare creative city, advertising becomes orientation. All-weather smart totems and panels carry visitors from the parking through the Aurora Media Park to every zone — calm, precise, woven into nature.</p>
+      <div style="display:flex;align-items:center;gap:48px;margin-top:40px;padding:24px 32px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));box-shadow:inset 0 0 0 1px rgba(255,255,255,0.1);">
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:72px;line-height:1;color:#7ce0a8;letter-spacing:-.03em;text-shadow:0 0 50px rgba(124,224,168,0.55),0 0 20px rgba(124,224,168,0.35);">1 000</div><div data-i18n="int_stat1_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">impressions · day</div></div>
+        <div style="width:1px;height:52px;background:linear-gradient(180deg,transparent,rgba(124,224,168,0.4),transparent);"></div>
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:72px;line-height:1;color:#7ce0a8;letter-spacing:-.03em;text-shadow:0 0 50px rgba(124,224,168,0.55),0 0 20px rgba(124,224,168,0.35);">365K</div><div data-i18n="int_stat2_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">impressions · year</div></div>
+        <div style="width:1px;height:52px;background:linear-gradient(180deg,transparent,rgba(124,224,168,0.4),transparent);"></div>
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:72px;line-height:1;color:#7ce0a8;letter-spacing:-.03em;text-shadow:0 0 50px rgba(124,224,168,0.55),0 0 20px rgba(124,224,168,0.35);">$3–5K</div><div data-i18n="int_stat3_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">revenue · month</div></div>
+        <div style="width:1px;height:52px;background:linear-gradient(180deg,transparent,rgba(124,224,168,0.4),transparent);"></div>
+        <div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:72px;line-height:1;color:#7ce0a8;letter-spacing:-.03em;text-shadow:0 0 50px rgba(124,224,168,0.55),0 0 20px rgba(124,224,168,0.35);">44 ha</div><div data-i18n="int_stat4_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#b3ad9c;margin-top:8px;text-transform:uppercase;">creative city · captive audience</div></div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .08s,transform 1s cubic-bezier(.16,.84,.34,1) .08s;margin-top:52px;position:relative;z-index:2;border-radius:10px;background:linear-gradient(105deg,rgba(124,224,168,0.09) 0%,rgba(124,224,168,0.03) 60%,transparent 100%);box-shadow:inset 0 0 0 1px rgba(124,224,168,0.22);padding:38px 46px;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;">
+      <div>
+        <div data-i18n="int_roi_label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.34em;color:#7ce0a8;text-transform:uppercase;margin-bottom:18px;">NEW REVENUE STREAM · DIGITAL FOOTPRINT · CRM</div>
+        <div data-i18n="int_roi_heading" style="font-family:'Cormorant Garamond',sans-serif;font-weight:600;font-size:42px;line-height:1.15;color:#efe7d6;margin-bottom:22px;">Every visitor becomes data.<br>And data becomes income.</div>
+        <div data-i18n="int_roi_body" style="font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;color:rgba(185,210,195,0.82);">Smart panels capture visitor flow — routes, dwell time, reaction to content. The platform builds a digital portrait of each guest: from the first QR scan on Sunset Road to the final zone. CRM integration turns anonymous visitors into an engaged community — with segmentation, retargeting, and repeat offers.</div>
+      </div>
+      <div style="flex:0 0 auto;text-align:center;padding:28px 40px;border-radius:8px;border:1px solid rgba(124,224,168,0.32);background:rgba(124,224,168,0.06);">
+        <div style="font-family:'Cormorant Garamond',sans-serif;font-weight:600;font-size:58px;line-height:1;color:#7ce0a8;text-shadow:0 0 40px rgba(124,224,168,0.5);">$3–5K</div>
+        <div data-i18n="int_roi_stat_label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;color:#b3ad9c;text-transform:uppercase;margin-top:10px;">revenue · month</div>
+        <div data-i18n="int_roi_stat_sub" style="font-family:'Inter',sans-serif;font-size:13px;color:rgba(124,224,168,0.65);margin-top:8px;line-height:1.45;">high-margin inventory<br>no staff required</div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .1s,transform 1s cubic-bezier(.16,.84,.34,1) .1s;margin-top:70px;display:grid;grid-template-columns:1fr 1.15fr;gap:46px;align-items:stretch;position:relative;z-index:2;">
+      <div style="position:relative;width:100%;min-height:460px;border-radius:8px;overflow:hidden;background:linear-gradient(180deg,rgba(79,138,94,0.08),rgba(0,0,0,0.25));box-shadow:inset 0 0 0 1px rgba(79,138,94,0.2);padding:28px;">
+        <div data-i18n="panel_map_eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.26em;color:#b3ad9c;margin-bottom:6px;">NUANU · ON-SITE PANEL MAP</div>
+        <svg viewBox="0 0 520 430" style="width:100%;height:auto;display:block;">
+          <path d="M74,232 C62,150 146,92 246,88 C366,82 470,124 460,224 C450,326 360,384 250,382 C150,380 86,318 74,232 Z" fill="rgba(79,138,94,0.09)" stroke="rgba(79,138,94,0.3)" stroke-width="1"/>
+          <ellipse cx="264" cy="234" rx="148" ry="108" fill="none" stroke="#4f8a5e" stroke-width="1.5" stroke-dasharray="3 7"/>
+          <circle cx="264" cy="234" r="27" fill="none" stroke="#7ce0a8" stroke-width="1.5"/>
+          <circle cx="264" cy="234" r="6" fill="#7ce0a8"/>
+          <g font-family="'IBM Plex Mono',monospace" font-size="11">
+            <text x="264" y="284" text-anchor="middle" fill="#cfe6cf" font-size="12">ASH · NAV HUB</text>
+            <g transform="translate(264,372)"><rect x="-8" y="-28" width="16" height="28" rx="3" fill="#2f5d3f" stroke="#7ce0a8" stroke-width="1"/><rect x="-5" y="-24" width="10" height="14" rx="1" fill="#7ce0a8" opacity="0.55"/><text x="0" y="18" text-anchor="middle" fill="#9fd4b2">P1 · PARKING</text></g>
+            <g transform="translate(120,128)"><rect x="-8" y="-28" width="16" height="28" rx="3" fill="#2f5d3f" stroke="#7ce0a8" stroke-width="1"/><rect x="-5" y="-24" width="10" height="14" rx="1" fill="#7ce0a8" opacity="0.55"/><text x="0" y="-36" text-anchor="middle" fill="#9fd4b2">PARK EXIT</text></g>
+            <circle cx="408" cy="168" r="4" fill="#6fa86a"/><text x="416" y="172" fill="#7fa990">Earth Sentinels</text>
+            <circle cx="392" cy="300" r="4" fill="#6fa86a"/><text x="400" y="304" fill="#7fa990">Waterfront</text>
+            <circle cx="150" cy="300" r="4" fill="#6fa86a"/><text x="158" y="304" fill="#7fa990">Amphitheatre</text>
+          </g>
+        </svg>
+      </div>
+      <div style="position:relative;border-radius:8px;padding:42px;background:linear-gradient(180deg,rgba(79,138,94,0.09),rgba(0,0,0,0.2));box-shadow:inset 0 0 0 1px rgba(79,138,94,0.2);">
+        <div data-i18n="in_nuanu_eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.26em;color:#b3ad9c;margin-bottom:38px;">IN-NUANU TRAFFIC FLOW</div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="display:flex;align-items:center;gap:20px;padding-bottom:22px;"><span style="font-family:'Cormorant Garamond';font-weight:300;font-size:22px;color:#b3ad9c;width:26px;">↓</span><div><div data-i18n="flow1_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#efe7d6;">Parking &amp; drop-off plaza</div><div data-i18n="flow1_sub" style="font-size:14px;color:#b3ad9c;">Welcome totem · orientation</div></div></div>
+          <div style="display:flex;align-items:center;gap:20px;padding:22px 0;border-top:1px solid rgba(124,224,168,0.12);"><span style="font-family:'Cormorant Garamond';font-weight:300;font-size:22px;color:#b3ad9c;width:26px;">↓</span><div><div data-i18n="flow2_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#efe7d6;">Electric shuttles · every 10 min</div><div data-i18n="flow2_sub" style="font-size:14px;color:#b3ad9c;">On-board &amp; stop-side panels</div></div></div>
+          <div style="display:flex;align-items:center;gap:20px;padding:22px 0;border-top:1px solid rgba(124,224,168,0.12);"><span style="font-family:'Cormorant Garamond';font-weight:300;font-size:22px;color:#b3ad9c;width:26px;">↓</span><div><div data-i18n="flow3_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#efe7d6;">Aurora Media Park · 1 km route</div><div data-i18n="flow3_sub" style="font-size:14px;color:#b3ad9c;">Directorix® wayfinding + brand</div></div></div>
+          <div style="display:flex;align-items:center;gap:20px;padding-top:22px;border-top:1px solid rgba(124,224,168,0.12);"><span style="width:26px;text-align:center;"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#7ce0a8;box-shadow:0 0 14px #7ce0a8;"></span></span><div><div data-i18n="flow4_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:23px;color:#fff;">Zones — Earth Sentinels · Amphitheatre · Waterfront</div><div data-i18n="flow4_sub" style="font-size:14px;color:#b3ad9c;">Immersion across the territory</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .12s,transform 1s cubic-bezier(.16,.84,.34,1) .12s;margin-top:46px;display:flex;flex-direction:column;gap:18px;position:relative;z-index:2;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="position:relative;width:100%;height:560px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(79,138,94,0.35),0 32px 80px -24px rgba(0,0,0,0.7);">
+          <img src="assets/photos/nat3.jpg" alt="Navigation panel in nature" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 42%;" />
+          <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(12,33,23,0.4) 0%,rgba(6,17,11,0.1) 45%,rgba(0,0,0,0.45) 100%);"></div>
+        </div>
+        <div data-i18n="int_photo_1" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#7ce0a8;">N1 · ENTRANCE TOTEMS · DIRECTORIX®</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="position:relative;width:100%;height:560px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(79,138,94,0.35),0 32px 80px -24px rgba(0,0,0,0.7);">
+            <img src="assets/photos/s2.jpg" alt="Navigation panel in nature" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;" />
+            <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(12,33,23,0.45) 0%,rgba(6,17,11,0.15) 50%,rgba(0,0,0,0.5) 100%);"></div>
+          </div>
+          <div data-i18n="int_photo_2" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#7ce0a8;">N2 · WAYFINDING PANEL</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="position:relative;width:100%;height:560px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(79,138,94,0.35),0 32px 80px -24px rgba(0,0,0,0.7);">
+            <img src="assets/photos/s1.jpg" alt="Navigation panel in nature" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;" />
+            <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(12,33,23,0.45) 0%,rgba(6,17,11,0.15) 50%,rgba(0,0,0,0.5) 100%);"></div>
+          </div>
+          <div data-i18n="int_photo_3" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:#7ce0a8;">N3 · DIRECTIONAL SIGNAGE</div>
+        </div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .15s,transform 1s cubic-bezier(.16,.84,.34,1) .15s;margin-top:46px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative;z-index:2;">
+      <div style="border-radius:8px;padding:30px;background:rgba(79,138,94,0.06);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.18);min-height:200px;"><div style="font-size:30px;color:#b3ad9c;margin-bottom:16px;">⬡</div><div data-i18n="feat1_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Interactive 3D wayfinding</div><p data-i18n="feat1_body" style="margin:10px 0 0;font-size:15px;line-height:1.5;color:#b3ad9c;">Animated routes to any zone on the Directorix® platform.</p></div>
+      <div style="border-radius:8px;padding:30px;background:rgba(79,138,94,0.06);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.18);min-height:200px;"><div style="font-size:30px;color:#b3ad9c;margin-bottom:16px;">◳</div><div data-i18n="feat2_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">All-weather smart totems</div><p data-i18n="feat2_body" style="margin:10px 0 0;font-size:15px;line-height:1.5;color:#b3ad9c;">4K, dual-side, built for the tropics — since 2004.</p></div>
+      <div style="border-radius:8px;padding:30px;background:rgba(79,138,94,0.06);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.18);min-height:200px;"><div style="font-size:30px;color:#b3ad9c;margin-bottom:16px;">▦</div><div data-i18n="feat3_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">QR route-to-mobile</div><p data-i18n="feat3_body" style="margin:10px 0 0;font-size:15px;line-height:1.5;color:#b3ad9c;">Carry the route on your phone — no download.</p></div>
+      <div style="border-radius:8px;padding:30px;background:rgba(79,138,94,0.06);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.18);min-height:200px;"><div style="font-size:30px;color:#b3ad9c;margin-bottom:16px;">◎</div><div data-i18n="feat4_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Targeted brand screens</div><p data-i18n="feat4_body" style="margin:10px 0 0;font-size:15px;line-height:1.5;color:#b3ad9c;">Context-aware offers by time, weather and flow.</p></div>
+      <div style="border-radius:8px;padding:30px;background:rgba(79,138,94,0.06);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.18);min-height:200px;"><div style="font-size:30px;color:#b3ad9c;margin-bottom:16px;">⌬</div><div data-i18n="feat5_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Kiosks · AR moments</div><p data-i18n="feat5_body" style="margin:10px 0 0;font-size:15px;line-height:1.5;color:#b3ad9c;">Selfie-box and AR postcards that travel online.</p></div>
+      <div style="border-radius:8px;padding:30px;background:rgba(79,138,94,0.06);box-shadow:inset 0 0 0 1px rgba(79,138,94,0.18);min-height:200px;"><div style="font-size:30px;color:#b3ad9c;margin-bottom:16px;">∿</div><div data-i18n="feat6_title" style="font-family:'Cormorant Garamond',sans-serif;font-size:24px;color:#efe7d6;">Real-time analytics</div><p data-i18n="feat6_body" style="margin:10px 0 0;font-size:15px;line-height:1.5;color:#b3ad9c;">Flows, interests and routes — the last-mile data.</p></div>
+    </div>
+
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1) .2s,transform 1s cubic-bezier(.16,.84,.34,1) .2s;margin-top:56px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px;border-top:1px solid rgba(79,138,94,0.24);padding-top:38px;position:relative;z-index:2;">
+      <div><div style="font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:56px;color:#b3ad9c;">2004</div><div data-i18n="int_sec_stat1_label" style="font-size:14px;color:#b3ad9c;">building interactive navigation since</div></div>
+      <div><div style="font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:56px;color:#b3ad9c;">80+</div><div data-i18n="int_sec_stat2_label" style="font-size:14px;color:#b3ad9c;">destinations equipped</div></div>
+      <div><div style="font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:56px;color:#b3ad9c;">300+</div><div data-i18n="int_sec_stat3_label" style="font-size:14px;color:#b3ad9c;">projects delivered worldwide</div></div>
+    </div>
+  </section>
+
+  <!-- ░░░ FUNNEL — BRIDGE ░░░ -->
+  <div style="position:relative;background:#060606;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:center;padding:40px 8vw;border-top:1px solid rgba(124,224,168,0.08);border-bottom:1px solid rgba(124,224,168,0.08);">
+      <div style="flex:1;text-align:right;padding-right:40px;">
+        <div data-i18n="bridge_left_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.26em;color:#b3ad9c;text-transform:uppercase;margin-bottom:6px;">External road network</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:300;font-size:30px;letter-spacing:-.01em;color:#e7cfa6;">~104M contacts / yr</div>
+      </div>
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 36px;">
+        <div style="width:1px;height:24px;background:linear-gradient(180deg,rgba(231,207,166,0.55),rgba(124,224,168,0.55));"></div>
+        <div data-i18n="bridge_flows" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;color:rgba(255,255,255,0.28);text-transform:uppercase;">flows into</div>
+        <div style="width:1px;height:24px;background:linear-gradient(180deg,rgba(124,224,168,0.55),rgba(231,207,166,0.55));"></div>
+      </div>
+      <div style="flex:1;text-align:left;padding-left:40px;">
+        <div data-i18n="bridge_right_label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.26em;color:#b3ad9c;text-transform:uppercase;margin-bottom:6px;">On-site navigation platform</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:300;font-size:30px;letter-spacing:-.01em;color:#7ce0a8;">~365K impressions / yr</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░░ CLOSING ░░░ -->
+  <section data-screen-label="Closing" style="position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 8vw;text-align:center;background:#080808;overflow:hidden;">
+    <img src="assets/luna.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.92) contrast(1.04) brightness(1.52);animation:ringpan 14s ease-in-out infinite alternate" />
+    <div style="position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 50%,rgba(6,11,8,0.38),rgba(6,11,8,0.76) 82%);"></div>
+    <div data-reveal style="opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.16,.84,.34,1),transform 1s cubic-bezier(.16,.84,.34,1);position:relative;z-index:2;">
+      <div style="position:relative;display:inline-block;padding:20px 70px;margin-bottom:30px;">
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:150%;height:240%;background:radial-gradient(58% 58% at 50% 50%,rgba(5,12,8,0.7),rgba(5,12,8,0) 72%);filter:blur(8px);"></div>
+        <img src="assets/nuanu_word_white.png" alt="Nuanu" style="position:relative;width:min(560px,44vw);filter:drop-shadow(0 14px 50px rgba(0,0,0,.7));" />
+      </div>
+      <h2 style="margin:0;font-family:'Cormorant Garamond',sans-serif;font-weight:200;font-size:46px;line-height:1.05;color:#efe7d6;"><span data-i18n="closing_heading">One light, inside and out.</span></h2>
+      <div style="width:1px;height:60px;margin:44px auto;background:linear-gradient(180deg,#7ce0a8,transparent);"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+        <img src="assets/nuanu_sign_white.png" alt="Nuanu" style="height:80px;filter:drop-shadow(0 0 22px rgba(255,255,255,0.5)) drop-shadow(0 0 6px rgba(255,255,255,0.9)) brightness(1.05);" />
+        <div data-i18n="closing_url" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.36em;text-transform:lowercase;color:rgba(255,255,255,0.7);text-shadow:0 0 14px rgba(255,255,255,0.4);">www.nuanu.com</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Language Switcher -->
+<div id="lang-switcher" aria-label="Language">
+  <button data-lang="en" class="lang-btn active">EN</button>
+  <button data-lang="ru" class="lang-btn">RU</button>
+  <button data-lang="id" class="lang-btn">ID</button>
+</div>
+
+<script defer src="i18n.js"></script>
+<script defer src="app.js"></script>
+</body>
+</html>
