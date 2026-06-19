@@ -50,16 +50,16 @@
   .aq-track{white-space:nowrap;font-family:'Inter',sans-serif;font-weight:200;font-size:42px;color:#efe7d6;animation:mq-scroll 26s linear infinite;will-change:transform;}
   .aq-wall.back .aq-track{font-size:58px;animation-duration:30s;}
   .aq-track em{color:#7ce0a8;font-style:normal;}
-  .ring-scene{position:relative;z-index:3;width:min(2180px,154vw);height:100vh;perspective:2500px;transform-style:preserve-3d;}
+  .ring-scene{position:relative;z-index:3;width:min(1900px,138vw);height:100vh;perspective:1600px;transform-style:preserve-3d;}
   .ring{position:absolute;inset:0;transform-style:preserve-3d;animation:ring-rot 120s linear infinite;}
-  @keyframes ring-rot{from{transform:translateY(74px) rotateX(-6deg) rotateY(0)}to{transform:translateY(74px) rotateX(-6deg) rotateY(360deg)}}
-  .ring img{position:absolute;top:50%;left:50%;width:780px;height:84vh;object-fit:cover;border-radius:8px;box-shadow:0 54px 130px -34px #000,0 0 0 1px rgba(255,255,255,0.13),inset 0 0 0 1px rgba(255,255,255,0.08);filter:grayscale(.72) contrast(1.08) brightness(.98) sepia(.16) hue-rotate(58deg) saturate(.98);backface-visibility:hidden;object-position:50% 50%;opacity:.94;}
-  .ring img:nth-child(1){transform:translate(-50%,-50%) rotateY(0deg) translateZ(1120px) rotateY(180deg)}
-  .ring img:nth-child(2){transform:translate(-50%,-50%) rotateY(60deg) translateZ(1120px) rotateY(180deg)}
-  .ring img:nth-child(3){transform:translate(-50%,-50%) rotateY(120deg) translateZ(1120px) rotateY(180deg)}
-  .ring img:nth-child(4){transform:translate(-50%,-50%) rotateY(180deg) translateZ(1120px) rotateY(180deg)}
-  .ring img:nth-child(5){transform:translate(-50%,-50%) rotateY(240deg) translateZ(1120px) rotateY(180deg)}
-  .ring img:nth-child(6){transform:translate(-50%,-50%) rotateY(300deg) translateZ(1120px) rotateY(180deg)}
+  @keyframes ring-rot{from{transform:translateY(52px) rotateX(-5deg) rotateY(0)}to{transform:translateY(52px) rotateX(-5deg) rotateY(360deg)}}
+  .ring img{position:absolute;top:50%;left:50%;width:900px;height:92vh;object-fit:cover;border-radius:8px;box-shadow:0 58px 138px -36px #000,0 0 0 1px rgba(255,255,255,0.14),inset 0 0 0 1px rgba(255,255,255,0.08);filter:grayscale(.72) contrast(1.08) brightness(.98) sepia(.16) hue-rotate(58deg) saturate(.98);backface-visibility:hidden;object-position:50% 50%;opacity:.94;}
+  .ring img:nth-child(1){transform:translate(-50%,-50%) rotateY(0deg) translateZ(900px) rotateY(180deg)}
+  .ring img:nth-child(2){transform:translate(-50%,-50%) rotateY(60deg) translateZ(900px) rotateY(180deg)}
+  .ring img:nth-child(3){transform:translate(-50%,-50%) rotateY(120deg) translateZ(900px) rotateY(180deg)}
+  .ring img:nth-child(4){transform:translate(-50%,-50%) rotateY(180deg) translateZ(900px) rotateY(180deg)}
+  .ring img:nth-child(5){transform:translate(-50%,-50%) rotateY(240deg) translateZ(900px) rotateY(180deg)}
+  .ring img:nth-child(6){transform:translate(-50%,-50%) rotateY(300deg) translateZ(900px) rotateY(180deg)}
   .qb-scene{perspective:1500px;width:300px;height:300px;}
   .qb{position:relative;width:300px;height:300px;transform-style:preserve-3d;animation:qb-rot 20s linear infinite;}
   @keyframes qb-rot{from{transform:rotateX(-14deg) rotateY(0)}to{transform:rotateX(-14deg) rotateY(360deg)}}
